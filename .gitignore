@@ -112,3 +112,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#HF model storage
+models/
+
+# mds
+task.md
+steps/
