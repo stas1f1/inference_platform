@@ -116,6 +116,13 @@ dmypy.json
 #HF model storage
 models/
 
+#Downloaded data
+data/
+
 # mds
 task.md
 steps/
+
+
+
+uv.lock
