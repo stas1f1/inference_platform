@@ -1,0 +1,10 @@
+name: "resnet18"
+backend: "tensorrt"
+max_batch_size: 32
+input  [ { name: "input"  data_type: TYPE_FP32 dims: [ 3, 224, 224 ] } ]
+output [ { name: "logits" data_type: TYPE_FP32 dims: [ 1000 ] } ]
+dynamic_batching {
+  preferred_batch_size: [ 4, 8, 16 ]
+  max_queue_delay_microseconds: 10000
+}
+instance_group [ { kind: KIND_GPU count: 1 } ]

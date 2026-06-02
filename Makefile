@@ -10,18 +10,19 @@ CLF_IMG        ?= localhost:$(REGISTRY_PORT)/classifier_service:$(TAG)
 
 .PHONY: models proto build push registry-up registry-down cluster-up cluster-down \
         namespace apply wait monitoring adapter deploy up down clean \
-        pf-llm pf-clf pf-grafana pf-prom smoke
+        pf-llm pf-clf pf-grafana pf-prom smoke \
+		gpu-deps onnx trt triton vllm gpu-up
 
 # ── Phase 0: workspace ───────────────────────────────────
 models:
 	@if [ -z "$$(ls -A models 2>/dev/null)" ]; then \
-		echo ">> downloading models"; python scripts/download_models.py; \
+		echo ">> downloading models"; uv run python scripts/download_models.py; \
 	else echo ">> models present"; fi
 curl localhost:8000/v1/health/ready
 
 # ── Phase 1: gRPC stubs ──────────────────────────────────
 proto:
-	python -m grpc_tools.protoc -I proto \
+	uv run python -m grpc_tools.protoc -I proto \
 		--python_out=services/llm_service \
 		--grpc_python_out=services/llm_service \
 		proto/inference.proto
@@ -77,8 +78,33 @@ adapter:
 	kubectl rollout status deploy/prometheus-adapter -n $(MONITORING_NS) --timeout=5m
 
 
+# ── Phase 3: GPU server (run on the rented box) ──────────
+gpu-deps:
+	uv sync --extra gpu --extra loadtest
 
+onnx:
+	uv run python scripts/export_onnx.py
 
+trt:
+	mkdir -p triton_model_repo/resnet18/1
+	trtexec --onnx=models/resnet18.onnx \
+		--saveEngine=triton_model_repo/resnet18/1/model.plan --fp16 \
+		--minShapes=input:1x3x224x224 \
+		--optShapes=input:8x3x224x224 \
+		--maxShapes=input:32x3x224x224
+
+triton:
+	docker run --gpus all --rm -p8500:8000 -p8501:8001 -p8502:8002 \
+		-v $$(pwd)/triton_model_repo:/models nvcr.io/nvidia/tritonserver:24.05-py3 \
+		tritonserver --model-repository=/models
+
+vllm:
+	uv run python -m vllm.entrypoints.openai.api_server \
+		--model ./models/qwen2.5-0.5b --host 0.0.0.0 --port 8000 --max-model-len 2048
+
+# one-shot prep: deps + artifacts. Then run `make vllm` and `make triton`.
+gpu-up: models gpu-deps onnx trt
+	@echo ">> artifacts ready. now run 'make vllm' and 'make triton' in separate shells"
 
 # ── End-to-end (local CPU) ───────────────────────────────
 deploy: build push apply wait

@@ -23,8 +23,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-gpu = ["vllm>=0.5", "onnx>=1.16", "onnxruntime-gpu>=1.18",
+gpu = ["vllm>=0.5", "onnx>=1.16", "onnxscript>=0.1", "onnxruntime-gpu>=1.18",
        "tritonclient[all]>=2.45", "sentence-transformers>=3.0"]
-onnx-cpu = ["onnx>=1.16", "onnxruntime>=1.18", "sentence-transformers>=3.0"]
+onnx-cpu = ["onnx>=1.16", "onnxscript>=0.1", "onnxruntime>=1.18", "sentence-transformers>=3.0"]
 loadtest = ["locust>=2.29"]
 dev = ["pytest>=8.2", "pytest-asyncio>=0.23", "ruff>=0.4", "mypy>=1.10"]
