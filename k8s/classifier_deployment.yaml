@@ -19,8 +19,8 @@ spec:
     spec:
       containers:
         - name: classifier-service
-          image: classifier_service:v1
-          imagePullPolicy: Never   # образ из kind load
+          image: localhost:5001/classifier_service:v1
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8001   # REST
           resources:

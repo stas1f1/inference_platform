@@ -19,8 +19,8 @@ spec:
     spec:
       containers:
         - name: llm-service
-          image: llm_service:v1
-          imagePullPolicy: Never   # образ из kind load
+          image: localhost:5001/llm_service:v1
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000   # REST
             - containerPort: 50051  # gRPC
