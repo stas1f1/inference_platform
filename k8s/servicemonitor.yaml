@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: llm-service
+  namespace: inference
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames: [inference]
+  selector:
+    matchLabels:
+      app: llm-service
+  endpoints:
+    - port: http          # matches the Service port name
+      path: /metrics
+      interval: 15s

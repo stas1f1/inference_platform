@@ -1,11 +1,14 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-
 from inference import engine, MODEL_VERSION
 
 app = FastAPI(title="LLM Service", version="1.0.0")
 
+from prometheus_client import Gauge, make_asgi_app
+
+QUEUE_SIZE = Gauge("llm_pending_requests", "in-flight inference requests")
+app.mount("/metrics", make_asgi_app())   # after app = FastAPI(...)
 
 class PredictRequest(BaseModel):
     prompt: str
@@ -33,9 +36,9 @@ def readiness():
 
 @app.post("/v1/generate", response_model=PredictResponse)
 def generate(req: PredictRequest):
-    text, latency = engine.generate(
-        req.prompt,
-        max_new_tokens=req.max_new_tokens,
-        temperature=req.temperature,
-    )
-    return PredictResponse(text=text, latency_ms=latency, model_version=MODEL_VERSION)
+    QUEUE_SIZE.inc()
+    try:
+        text, latency = engine.generate(req.prompt, req.max_new_tokens, req.temperature)
+        return PredictResponse(text=text, latency_ms=latency, model_version=MODEL_VERSION)
+    finally:
+        QUEUE_SIZE.dec()

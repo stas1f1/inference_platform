@@ -3,10 +3,8 @@ kind: Service
 metadata:
   name: classifier-service
   namespace: inference
+  labels: { app: classifier-service }
 spec:
-  selector:
-    app: classifier-service
+  selector: { app: classifier-service }
   ports:
-    - name: http
-      port: 8001
-      targetPort: 8001
+    - { name: http, port: 8001, targetPort: 8001 } 

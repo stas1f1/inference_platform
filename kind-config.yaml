@@ -6,11 +6,6 @@ containerdConfigPatches:
       endpoint = ["http://registry:5000"]
 nodes:
   - role: control-plane
-  - role: worker
-    extraMounts:
-      - hostPath: ./models
-        containerPath: /models
-  - role: worker
     extraMounts:
       - hostPath: ./models
         containerPath: /models

@@ -123,6 +123,10 @@ data/
 task.md
 steps/
 
-
+.venv/
+models/
+.env
+*.trt
+*.onnx
 
 uv.lock

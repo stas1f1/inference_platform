@@ -3,13 +3,9 @@ kind: Service
 metadata:
   name: llm-service
   namespace: inference
+  labels: { app: llm-service }
 spec:
-  selector:
-    app: llm-service
+  selector: { app: llm-service }
   ports:
-    - name: http
-      port: 8000
-      targetPort: 8000
-    - name: grpc
-      port: 50051
-      targetPort: 50051
+    - { name: http, port: 8000, targetPort: 8000 }
+    - { name: grpc, port: 50051, targetPort: 50051 }

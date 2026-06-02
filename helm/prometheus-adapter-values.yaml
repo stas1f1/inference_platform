@@ -1,0 +1,15 @@
+prometheus:
+  url: http://kube-prometheus-stack-prometheus.monitoring.svc
+  port: 9090
+rules:
+  default: false   # drop the thousands of built-in node/container metric rules
+  custom:
+    - seriesQuery: 'llm_pending_requests{namespace!="",pod!=""}'
+      resources:
+        overrides:
+          namespace: { resource: "namespace" }
+          pod:       { resource: "pod" }
+      name:
+        matches: "llm_pending_requests"
+        as: "llm_queue_depth"
+      metricsQuery: 'avg_over_time(llm_pending_requests{<<.LabelMatchers>>}[2m])'

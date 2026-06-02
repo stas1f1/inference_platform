@@ -6,12 +6,10 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels:
-      app: classifier-service
+    matchLabels: { app: classifier-service }
   template:
     metadata:
-      labels:
-        app: classifier-service
+      labels: { app: classifier-service }
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8001"
@@ -20,36 +18,21 @@ spec:
       containers:
         - name: classifier-service
           image: localhost:5001/classifier_service:v1
-          imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8001   # REST
+            - { containerPort: 8001 }   # REST 
           resources:
-            requests:
-              cpu: "500m"
-              memory: "1Gi"
-            limits:
-              cpu: "2"
-              memory: "3Gi"
-          startupProbe:
-            httpGet:
-              path: /v1/health/live
-              port: 8001
-            failureThreshold: 18
-            periodSeconds: 10   # up to 3 minutes for model to load
+            requests: { cpu: "500m", memory: "1Gi" }
+            limits:   { cpu: "2",    memory: "3Gi" }
           livenessProbe:
-            httpGet:
-              path: /v1/health/live
-              port: 8001
+            httpGet: { path: /v1/health/live, port: 8001 }
+            initialDelaySeconds: 30
             periodSeconds: 10
           readinessProbe:
-            httpGet:
-              path: /v1/health/ready
-              port: 8001
+            httpGet: { path: /v1/health/ready, port: 8001 }
+            initialDelaySeconds: 30
             periodSeconds: 5
           volumeMounts:
-            - name: models
-              mountPath: /models
+            - { name: models, mountPath: /models }
       volumes:
         - name: models
-          hostPath:
-            path: /models   # путь на kind-воркере
+          hostPath: { path: /models }   # provided by kind extraMounts
