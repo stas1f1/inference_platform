@@ -3,12 +3,13 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from transformers import AutoImageProcessor, AutoModelForImageClassification
 from PIL import Image
-import torch, io, time
+import torch, io, time, os
 
 app = FastAPI(title="Classifier Service", version="1.0.0")
 
-extractor = AutoImageProcessor.from_pretrained("../../models/resnet-18")
-model = AutoModelForImageClassification.from_pretrained("../../models/resnet-18")
+MODEL_PATH = os.environ.get("MODEL_PATH", "/models/resnet-18")
+extractor = AutoImageProcessor.from_pretrained(MODEL_PATH)
+model = AutoModelForImageClassification.from_pretrained(MODEL_PATH)
 model.eval()
 
 class ClassifyResponse(BaseModel):

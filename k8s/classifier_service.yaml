@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: classifier-service
+  namespace: inference
+spec:
+  selector:
+    app: classifier-service
+  ports:
+    - name: http
+      port: 8001
+      targetPort: 8001

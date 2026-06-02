@@ -1,10 +1,9 @@
-import sys
+import sys, os
 from concurrent import futures
 
 import grpc
 
-sys.path.insert(0, "../../proto")
-from proto import inference_pb2, inference_pb2_grpc
+import inference_pb2, inference_pb2_grpc
 
 from inference import engine, MODEL_VERSION
 

@@ -6,11 +6,11 @@
 чтобы не дублировать код и не держать модель в памяти в двух копиях.
 """
 
-import time
+import os, time
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-MODEL_PATH = "../../models/qwen2.5-0.5b"
+MODEL_PATH = os.environ.get("MODEL_PATH", "/models/qwen2.5-0.5b")
 MODEL_VERSION = "v1"
 
 
@@ -20,7 +20,7 @@ class Engine:
     def __init__(self, model_path: str = MODEL_PATH):
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.model = AutoModelForCausalLM.from_pretrained(
-            model_path, dtype=torch.float32
+            model_path, torch_dtype=torch.bfloat16
         )
         self.model.eval()
 
